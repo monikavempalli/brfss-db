@@ -186,3 +186,14 @@ pregnancy_chronic_conditions_dict = {
     7: 'Don’t know/Not Sure',
     9: 'Refused'
 }
+
+age_dict = {
+    1: '18-24 years',
+    2: '25-34 years',
+    3: '35-44 years',
+    4: '45-54 years',
+    5: '55-64 years',
+    6: '65-74 years',
+    7: '75 years or older'
+}
+

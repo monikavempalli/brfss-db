@@ -1,15 +1,15 @@
 import mysql.connector
 import pandas as pd
 from  constants import state_dict,gender_dict, education_dict, race_dict, marital_status_dict, income_dict
-from constants import health_condition_dict,healthcare_access_dict
+from constants import health_condition_dict,healthcare_access_dict,age_dict
 from constants import smoking_status_dict,alcohol_consumption_dict, physical_activity_dict, chronic_conditions_dict, pregnancy_chronic_conditions_dict
 
 
 # Create a connection to the MySQL server
 mydb = mysql.connector.connect(
-  host="localhost",
-  user="root",
-  password="Demo@123",
+  host="db-project-brfss.cwlbthrgopwy.us-east-2.rds.amazonaws.com",
+  user="admin",
+  password="Demo_123",
   database="BRFSS"
 )
 
@@ -32,9 +32,10 @@ def insert_respondent(data):
         gender = gender_dict.get(int(gender_str)) if gender_str.isdigit() else None
 
     age = None
-    # if data['AGE']:
-    #     age_str = str(data['AGE'])
-    #     age = age_dict.get(age_str) if age_str.isdigit() else None
+    #print(data['_AGE_G'])
+    if data['_AGE_G']:
+        age_str = str(data['_AGE_G']).replace('.0', '')
+        age = age_dict.get(int(age_str)) if age_str.isdigit() else None
 
     race = None
     if data['_RACE']:
@@ -58,11 +59,11 @@ def insert_respondent(data):
 
     #print(state,gender,age, race,education, marital_status, income)
     
-    #sql = "INSERT INTO Respondents (state, gender, age, race, education, marital_status, income) VALUES (%s, %s, %s, %s, %s, %s, %s)"
-    #val = (state, gender, age, race, education, marital_status, income)
-    #mycursor.execute(sql, val)
-    #mydb.commit()
-    #return mycursor.lastrowid
+    sql = "INSERT INTO Respondents (state, gender, age, race, education, marital_status, income) VALUES (%s, %s, %s, %s, %s, %s, %s)"
+    val = (state, gender, age, race, education, marital_status, income)
+    mycursor.execute(sql, val)
+    mydb.commit()
+    return mycursor.lastrowid
 
 
 # Define a function to insert data into the Health Conditions table
@@ -94,10 +95,10 @@ def insert_health_conditions(data, respondent_id):
         healthcare_access = healthcare_access_dict.get(int(access_str)) if access_str.isdigit() else None
     #print(general_health,physical_health,mental_health,healthcare_access)
 
-    # sql = "INSERT INTO `Health_Conditions` (respondent_id, general_health, physical_health, mental_health, healthcare_access) VALUES (%s, %s, %s, %s, %s)"
-    # val = (respondent_id, general_health, physical_health, mental_health, healthcare_access)
-    # mycursor.execute(sql, val)
-    # mydb.commit()
+    sql = "INSERT INTO `Health_Conditions` (respondent_id, general_health, physical_health, mental_health, healthcare_access) VALUES (%s, %s, %s, %s, %s)"
+    val = (respondent_id, general_health, physical_health, mental_health, healthcare_access)
+    mycursor.execute(sql, val)
+    mydb.commit()
 
 
 # Define a function to insert data into the Lifestyle Factors table
@@ -130,18 +131,18 @@ def insert_lifestyle_factors(data, respondent_id):
                 eat_behaviour = "Bad"
         
     ## To-do: Sleep duration change to trouble sleeping
-    sleep_duration = None
+    trouble_sleep = None
     if data['ADSLEEP']:
         sleep_str = str(data['ADSLEEP']).replace('.0', '')
         if sleep_str.isdigit() and 1<= int(sleep_str) <=14:
-            sleep_duration = int(sleep_str)
+            trouble_sleep = int(sleep_str)
         elif sleep_str.isdigit() and int(sleep_str) == 88:
-            sleep_duration = 0
-    #print(smoking_status, alcohol_consumption, physical_activity, eat_behaviour, sleep_duration)
-    # sql = "INSERT INTO `Lifestyle_Factors` (respondent_id, smoking_status, alcohol_consumption, physical_activity, sedentary_behaviour, sleep_duration) VALUES (%s, %s, %s, %s, %s, %s)"
-    # val = (respondent_id, smoking_status, alcohol_consumption, physical_activity, sedentary_behaviour, sleep_duration)
-    # mycursor.execute(sql, val)
-    # mydb.commit()
+            trouble_sleep = 0
+    #print(smoking_status, alcohol_consumption, physical_activity, eat_behaviour, trouble_sleep)
+    sql = "INSERT INTO `Lifestyle_Factors` (respondent_id, smoking_status, alcohol_consumption, physical_activity, eat_behaviour, trouble_sleep) VALUES (%s, %s, %s, %s, %s, %s)"
+    val = (respondent_id, smoking_status, alcohol_consumption, physical_activity, eat_behaviour, trouble_sleep)
+    mycursor.execute(sql, val)
+    mydb.commit()
 
 
 # Define a function to insert data into the Chronic Conditions table
@@ -177,10 +178,10 @@ def insert_chronic_conditions(data, respondent_id):
         stroke = chronic_conditions_dict.get(int(stroke_str)) if stroke_str.isdigit() else None
 
     #print(diabetes, asthma, high_blood_pressure, high_cholesterol, heart_disease, stroke)
-    # sql = "INSERT INTO `Chronic_Conditions` (respondent_id, diabetes, asthma, high_blood_pressure, high_cholesterol, heart_disease, stroke) VALUES (%s, %s, %s, %s, %s, %s, %s)"
-    # val = (respondent_id, diabetes, asthma, high_blood_pressure, high_cholesterol, heart_disease, stroke)
-    # mycursor.execute(sql, val)
-    # mydb.commit()
+    sql = "INSERT INTO `Chronic_Conditions` (respondent_id, diabetes, asthma, high_blood_pressure, high_cholesterol, heart_disease, stroke) VALUES (%s, %s, %s, %s, %s, %s, %s)"
+    val = (respondent_id, diabetes, asthma, high_blood_pressure, high_cholesterol, heart_disease, stroke)
+    mycursor.execute(sql, val)
+    mydb.commit()
 
 
 # Define a function to insert data into the Health Screening table
@@ -201,26 +202,26 @@ def insert_health_screening(data, respondent_id):
         cancer_screening = chronic_conditions_dict.get(int(cancer_screening_str)) if cancer_screening_str.isdigit() else None
 
     #print(cholesterol_screening, blood_pressure_screening, cancer_screening)
-    # sql = "INSERT INTO `Health_Screening` (respondent_id, cholesterol_screening, blood_pressure_screening, cancer_screening) VALUES (%s, %s, %s, %s)"
-    # val = (respondent_id, cholesterol_screening, blood_pressure_screening, cancer_screening)
-    # mycursor.execute(sql, val)
-    # mydb.commit()
+    sql = "INSERT INTO `Health_Screening` (respondent_id, cholesterol_screening, blood_pressure_screening, cancer_screening) VALUES (%s, %s, %s, %s)"
+    val = (respondent_id, cholesterol_screening, blood_pressure_screening, cancer_screening)
+    mycursor.execute(sql, val)
+    mydb.commit()
 
 
     # Loop through the rows of the dataframe and insert data into the tables
 chunk_size = 1000
 
 csv_reader = pd.read_csv("/Users/mouni/Downloads/2015.csv", chunksize=chunk_size)
-
+#df = pd.read_csv("/Users/mouni/Downloads/2015.csv", nrows=chunk_size)
 iter = 1
 for df in csv_reader:
     print("iteration:::", iter)
     for index, row in df.iterrows():
         respondent_id = insert_respondent(row)
-        insert_health_conditions(row, 0)
-        insert_lifestyle_factors(row, 0)
-        insert_chronic_conditions(row, 0)
-        insert_health_screening(row, 0)
-    iter = iter + 1
+        insert_health_conditions(row, respondent_id)
+        insert_lifestyle_factors(row, respondent_id)
+        insert_chronic_conditions(row, respondent_id)
+        insert_health_screening(row, respondent_id)
+        iter = iter + 1
 
    

@@ -3,9 +3,9 @@ import mysql.connector
 
 # Connect to the MySQL database
 db = mysql.connector.connect(
-  host="localhost",
-  user="root",
-  password="Demo@123",
+  host="db-project-brfss.cwlbthrgopwy.us-east-2.rds.amazonaws.com",
+  user="admin",
+  password="Demo_123",
   database="BRFSS"
 )
 cursor = db.cursor()
